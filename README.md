@@ -2,11 +2,27 @@
 
 GameRec ghi màn hình Android trực tiếp vào MP4 bằng encoder phần cứng. Giao diện tiếng Việt, lưu trên thiết bị. Android 8.0 trở lên.
 
+## Cài SDK và build release trên Windows
+
+Với JDK 17 đã cài, chạy từ thư mục dự án:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-android.ps1
+```
+
+Đọc điều khoản và trả lời lời nhắc của `sdkmanager`. Script cài SDK vào `.toolchain/android-sdk`, cấu hình `local.properties`, rồi build và kiểm tra chữ ký APK release. Nếu cần tải ZIP Command-line Tools bằng trình duyệt, tải bản Windows `commandlinetools-win-15859902_latest.zip` từ [Android Developers](https://developer.android.com/studio#command-line-tools-only) và truyền đường dẫn qua tham số `-ToolsZip`.
+
 ## Mở bằng Android Studio
 
 1. Mở thư mục chứa `settings.gradle.kts` bằng Android Studio Panda 3 Patch 1 trở lên.
-2. Trong SDK Manager, cài **Android SDK Platform 37**, **Android SDK Build-Tools 36.0.0** và **Android SDK Platform-Tools**. Đặt Gradle JDK là JDK 17.
+2. Trong SDK Manager, cài **Android SDK Platform 37.0**, **Android SDK Build-Tools 36.0.0** và **Android SDK Platform-Tools**. Đặt Gradle JDK là JDK 17.
 3. Chạy **Sync Project with Gradle Files**. Lần đầu cần kết nối để tải Gradle và các thư viện.
+
+Nếu Gradle báo thiếu đường dẫn SDK (`SDK location not found`), mở **Tools → SDK Manager** để xem **Android SDK Location**. Tạo hoặc cập nhật `local.properties` ở thư mục dự án với đường dẫn đó, dùng dấu `/`. Ví dụ cho vị trí mặc định trên Windows:
+
+```properties
+sdk.dir=C:/Users/<tên người dùng>/AppData/Local/Android/Sdk
+```
 
 ## Build và cài APK
 
@@ -27,6 +43,17 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 Bật **Gỡ lỗi USB** trong Tùy chọn nhà phát triển, kết nối điện thoại và xác nhận hộp thoại gỡ lỗi. Cũng có thể chọn thiết bị và bấm **Run** trong Android Studio hoặc mở APK trên điện thoại để cài.
+
+### Build release để cài thử
+
+Trên Windows PowerShell:
+
+```powershell
+.\gradlew.bat assembleRelease -PgameRecTestSigning=true
+adb install -r app\build\outputs\apk\release\app-release.apk
+```
+
+Trên macOS và Linux, dùng `sh ./gradlew assembleRelease -PgameRecTestSigning=true`. Tùy chọn này ký APK release bằng khóa debug của máy build để cài thử. Khi phát hành, chọn **Generate Signed Bundle / APK** trong Android Studio và dùng khóa phát hành riêng.
 
 ## Quyền và cách sử dụng
 

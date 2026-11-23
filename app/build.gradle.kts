@@ -6,7 +6,11 @@ plugins {
 }
 android {
     namespace = "vn.gamerec"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 0
+        }
+    }
     defaultConfig {
         applicationId = "vn.gamerec"
         minSdk = 26
@@ -15,6 +19,13 @@ android {
         versionName = "1.0"
     }
     buildFeatures { compose = true }
+    buildTypes {
+        release {
+            if (providers.gradleProperty("gameRecTestSigning").orNull == "true") {
+                signingConfig = signingConfigs.getByName("debug")
+            }
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
