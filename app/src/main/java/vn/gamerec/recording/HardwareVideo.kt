@@ -39,7 +39,7 @@ object HardwareVideo {
         val capabilities = runCatching { info.getCapabilitiesForType(codec.mime) }.getOrNull()
         capabilities?.takeIf {
             MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface in it.colorFormats
-        }?.let { info.name to it.videoCapabilities }
+        }?.videoCapabilities?.let { info.name to it }
     }
 
     fun audioEncoder(): String? = encoders.firstOrNull { info ->
