@@ -52,6 +52,7 @@ class ProjectionRecorder(
         projection.registerCallback(projectionCallback, worker)
         openSegment()
         startedAt = SystemClock.elapsedRealtime()
+        nextCheck = startedAt + 2_000
         publish()
         worker.post(tick)
     }
@@ -143,7 +144,12 @@ class ProjectionRecorder(
         }
         checkNotNull(segment).pump()
         if (elapsed() != lastPublished) publish()
-        worker.postDelayed(tick, if (pausedAt == null) 10 else 100)
+        val pumpDelay = when {
+            pausedAt != null -> 100L
+            settings.microphone -> 10L
+            else -> 16L
+        }
+        worker.postDelayed(tick, pumpDelay)
     }
 
     private fun publish() {

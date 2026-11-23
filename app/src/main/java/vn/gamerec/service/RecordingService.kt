@@ -26,6 +26,7 @@ import vn.gamerec.recording.Phase
 import vn.gamerec.recording.ProjectionRecorder
 import vn.gamerec.recording.RecordingSession
 import vn.gamerec.recording.RecordingState
+import vn.gamerec.settings.BubblePosition
 import vn.gamerec.settings.SettingsRepository
 import vn.gamerec.storage.VideoStore
 import vn.gamerec.ui.MainActivity
@@ -41,6 +42,7 @@ class RecordingService : Service() {
     private lateinit var worker: Handler
     private val main by lazy { Handler(mainLooper) }
     private lateinit var bubble: RecordingBubble
+    private var bubblePosition = BubblePosition.TOP_RIGHT
     private lateinit var notifications: NotificationManager
     private var recorder: ProjectionRecorder? = null // Accessed only on worker.
     private var started = false
@@ -83,6 +85,7 @@ class RecordingService : Service() {
     private fun startCapture(intent: Intent) {
         started = true
         val config = settings.state.value
+        bubblePosition = config.bubblePosition
         val data = if (Build.VERSION.SDK_INT >= 33) intent.getParcelableExtra(CONSENT, Intent::class.java)
         else intent.getParcelableExtra<Intent>(CONSENT)
         if (data == null) {
@@ -132,7 +135,7 @@ class RecordingService : Service() {
 
     private fun update(value: RecordingState) {
         session.publish(value)
-        bubble.show(value)
+        if (bubblePosition != BubblePosition.HIDDEN) bubble.show(value, bubblePosition)
         val pausedChanged = value.phase != lastPhase
         if (pausedChanged) notifications.notify(NOTIFICATION, notification(value))
         lastPhase = value.phase

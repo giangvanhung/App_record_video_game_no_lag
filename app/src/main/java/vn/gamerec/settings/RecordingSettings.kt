@@ -25,6 +25,14 @@ enum class SaveFolder(val relativePath: String) {
     GAMEREC("Movies/GameRec"), GAMEPLAY("Movies/GameRec/Gameplay"), MOVIES("Movies")
 }
 
+enum class BubblePosition(val label: String) {
+    TOP_RIGHT("Trên bên phải"),
+    TOP_LEFT("Trên bên trái"),
+    BOTTOM_RIGHT("Dưới bên phải"),
+    BOTTOM_LEFT("Dưới bên trái"),
+    HIDDEN("Ẩn")
+}
+
 data class RecordingSettings(
     val quality: Quality = Quality.STANDARD,
     val codec: VideoCodec = VideoCodec.AVC,
@@ -32,7 +40,8 @@ data class RecordingSettings(
     val limitMinutes: Int = 0,
     val folder: SaveFolder = SaveFolder.GAMEREC,
     val autoReduce: Boolean = true,
-    val landscape: Boolean = false
+    val landscape: Boolean = false,
+    val bubblePosition: BubblePosition = BubblePosition.TOP_RIGHT
 )
 
 @Singleton
@@ -46,7 +55,8 @@ class SettingsRepository @Inject constructor(@ApplicationContext context: Contex
             read("quality", Quality.entries.toTypedArray()), read("codec", VideoCodec.entries.toTypedArray()),
             prefs.getBoolean("microphone", false), prefs.getInt("limit", 0),
             read("folder", SaveFolder.entries.toTypedArray()), prefs.getBoolean("auto", true),
-            prefs.getBoolean("landscape", false)
+            prefs.getBoolean("landscape", false),
+            read("bubblePosition", BubblePosition.entries.toTypedArray())
         )
     )
     val state = mutable.asStateFlow()
@@ -56,7 +66,8 @@ class SettingsRepository @Inject constructor(@ApplicationContext context: Contex
         prefs.edit().putString("quality", value.quality.name).putString("codec", value.codec.name)
             .putBoolean("microphone", value.microphone).putInt("limit", value.limitMinutes)
             .putString("folder", value.folder.name).putBoolean("auto", value.autoReduce)
-            .putBoolean("landscape", value.landscape).apply()
+            .putBoolean("landscape", value.landscape)
+            .putString("bubblePosition", value.bubblePosition.name).apply()
         mutable.value = value
     }
 }

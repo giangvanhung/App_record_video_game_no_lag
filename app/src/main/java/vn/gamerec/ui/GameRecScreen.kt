@@ -25,6 +25,7 @@ import vn.gamerec.recording.DeviceStatus
 import vn.gamerec.recording.Phase
 import vn.gamerec.recording.RecordingState
 import vn.gamerec.recording.formatTime
+import vn.gamerec.settings.BubblePosition
 import vn.gamerec.settings.Quality
 import vn.gamerec.settings.RecordingSettings
 import vn.gamerec.settings.SaveFolder
@@ -159,7 +160,17 @@ private fun SettingsPage(
         SettingSwitch("Khung hình ngang cho game", settings.landscape, enabled) {
             update { config -> config.copy(landscape = it) }
         }
-        OutlinedButton(onClick = overlay) { Text("Cài đặt quyền cửa sổ nổi") }
+        Choice("Vị trí chấm quay", settings.bubblePosition, BubblePosition.entries, enabled, { it.label }) {
+            update { config -> config.copy(bubblePosition = it) }
+        }
+        if (settings.bubblePosition == BubblePosition.HIDDEN) {
+            Text(
+                "Tạm dừng hoặc dừng quay trong GameRec hoặc từ thông báo nếu đã cấp quyền.",
+                style = MaterialTheme.typography.bodySmall
+            )
+        } else {
+            OutlinedButton(onClick = overlay) { Text("Cài đặt quyền cửa sổ nổi") }
+        }
     }
 }
 
